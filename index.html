@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Intelligence Bezel Glow</title>
+    <style>
+        :root {
+            --aura-gradient: linear-gradient(
+                to right,
+                #ff3b30, #ff9500, #ffcc00, #4cd964, #5ac8fa, #007aff, #5856d6, #ff2d55
+            );
+            --transition-speed: 0.6s;
+            --bezel-width: 12px;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #080808;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            overflow: hidden;
+            transition: background 0.5s;
+        }
+
+        /* --- DEVICE CONTAINERS --- */
+        .device-wrapper {
+            position: relative;
+            transition: all var(--transition-speed) cubic-bezier(0.2, 1, 0.2, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* iPhone Mode - Made taller (740px -> 780px) */
+        .mode-iphone .device-wrapper {
+            width: 360px;
+            height: 780px;
+            background: #1a1a1a;
+            border-radius: 55px;
+            box-shadow: 0 0 0 2px #333, 0 30px 60px rgba(0,0,0,0.8);
+            padding: var(--bezel-width);
+        }
+
+        /* iPad Mode */
+        .mode-ipad .device-wrapper {
+            width: 700px;
+            height: 500px;
+            background: #1a1a1a;
+            border-radius: 35px;
+            box-shadow: 0 0 0 2px #333, 0 30px 60px rgba(0,0,0,0.8);
+            padding: var(--bezel-width);
+        }
+
+        /* iMac Mode */
+        .mode-imac .device-wrapper {
+            width: 850px;
+            height: 540px;
+            background: #e5e5e5;
+            border-radius: 12px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            padding: 15px;
+            padding-bottom: 80px;
+        }
+
+        .screen-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+            border-radius: inherit;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- THE BEZEL GLOW (The "Aura") --- */
+        .bezel-glow {
+            position: absolute;
+            inset: -4px;
+            z-index: 50;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            border-radius: inherit;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: destination-out;
+            padding: 8px;
+        }
+
+        .bezel-glow::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: var(--aura-gradient);
+            background-size: 300% 300%;
+            filter: blur(10px);
+            animation: rotateGlow 4s linear infinite;
+        }
+
+        .aura-active .bezel-glow {
+            opacity: 1;
+        }
+
+        @keyframes rotateGlow {
+            0% { transform: rotate(0deg); background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { transform: rotate(360deg); background-position: 0% 50%; }
+        }
+
+        /* --- SCREENSHOTS --- */
+        .screenshot {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 10;
+            transition: opacity 0.4s;
+        }
+
+        .mode-iphone .screenshot { background-image: url('iphone.png'); }
+        .mode-ipad .screenshot { background-image: url('ipad.png'); }
+        .mode-imac .screenshot { background-image: url('imac.png'); }
+
+        /* --- KEYBOARD --- */
+        .keyboard {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 280px;
+            z-index: 150;
+            padding: 10px 8px 30px 8px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .kb-open .keyboard {
+            transform: translateY(0);
+        }
+
+        .kb-aura-bg {
+            position: absolute;
+            inset: 0;
+            background: var(--aura-gradient);
+            background-size: 300% 300%;
+            animation: flowColors 8s ease infinite;
+            opacity: 0.15;
+            z-index: -2;
+        }
+
+        .kb-glass {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(25px);
+            z-index: -1;
+        }
+
+        .kb-row { display: flex; gap: 4px; justify-content: center; flex: 1; }
+        .key { background: rgba(255, 255, 255, 0.1); border-radius: 5px; flex: 1; border: 0.5px solid rgba(255,255,255,0.05); }
+        .key.wide { flex: 1.5; }
+        .key.space { flex: 5; }
+
+        @keyframes flowColors {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- IMAC CHIN --- */
+        .imac-chin {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: #f3f3f3;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border-top: 1px solid #ddd;
+        }
+        .mode-imac .imac-chin { display: flex; }
+
+        /* --- UI CONTROLS --- */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            display: flex;
+            gap: 12px;
+            background: rgba(255,255,255,0.08);
+            padding: 10px 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn:hover { background: rgba(255,255,255,0.2); }
+        .btn.active { background: #007aff; }
+        #kbToggleBtn { display: block; }
+        .mode-imac #kbToggleBtn { display: none; }
+    </style>
+</head>
+<body class="mode-iphone">
+
+    <div class="device-wrapper" id="device">
+        <div class="screen-container">
+            <div class="bezel-glow"></div>
+            <div class="screenshot"></div>
+            
+            <!-- Keyboard Layer -->
+            <div class="keyboard" id="kb">
+                <div class="kb-aura-bg"></div>
+                <div class="kb-glass"></div>
+                <div class="kb-row">
+                    <div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div>
+                </div>
+                <div class="kb-row" style="padding: 0 10px;">
+                    <div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div>
+                </div>
+                <div class="kb-row">
+                    <div class="key wide"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key wide"></div>
+                </div>
+                <div class="kb-row">
+                    <div class="key"></div><div class="key"></div><div class="key space"></div><div class="key"></div><div class="key"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="imac-chin">
+            <div style="width: 40px; height: 40px; opacity: 0.2; background: black; border-radius: 50%;"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn active" onclick="setMode('iphone', this)">iPhone</button>
+        <button class="btn" onclick="setMode('ipad', this)">iPad</button>
+        <button class="btn" onclick="setMode('imac', this)">iMac</button>
+        <div style="width: 1px; background: rgba(255,255,255,0.2); margin: 0 5px;"></div>
+        <button class="btn" id="siriToggle" onclick="toggleAura()">Siri</button>
+        <button class="btn" id="kbToggleBtn" onclick="toggleKB()">Keyboard</button>
+    </div>
+
+    <script>
+        const device = document.getElementById('device');
+        const siriToggle = document.getElementById('siriToggle');
+
+        function setMode(mode, btn) {
+            document.body.className = `mode-${mode}`;
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            device.classList.remove('aura-active', 'kb-open');
+            siriToggle.classList.remove('active');
+        }
+
+        function toggleAura() {
+            device.classList.toggle('aura-active');
+            siriToggle.classList.toggle('active');
+        }
+
+        function toggleKB() {
+            device.classList.toggle('kb-open');
+        }
+    </script>
+</body>
+</html>
