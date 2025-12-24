@@ -13,8 +13,15 @@
             --transition-speed: 0.6s;
             --bezel-width: 12px;
             --island-bg: #000000;
-            /* Precise iOS physics: very fast start, slight overshoot */
             --ios-snap: cubic-bezier(0.23, 1, 0.32, 1);
+            
+            /* Reduced Expansion Dimensions */
+            --expanded-width: 320px;
+            --expanded-height: 380px;
+            
+            /* Radii */
+            --iphone-expanded-radius: 35px;
+            --macbook-expanded-radius: 14px;
         }
 
         body {
@@ -23,7 +30,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #080808;
+            background-color: #050505;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
             overflow: hidden;
             transition: background 0.5s;
@@ -32,38 +39,45 @@
         /* --- DEVICE CONTAINERS --- */
         .device-wrapper {
             position: relative;
-            transition: all var(--transition-speed) cubic-bezier(0.2, 1, 0.2, 1);
+            transition: all var(--transition-speed) var(--ios-snap);
             display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 10;
         }
 
-        .mode-iphone .device-wrapper {
-            width: 360px;
-            height: 780px;
-            background: #1a1a1a;
-            border-radius: 55px;
-            box-shadow: 0 0 0 2px #333, 0 30px 60px rgba(0,0,0,0.8);
-            padding: var(--bezel-width);
+        /* Device Specific Styles */
+        .mode-iphone .device-wrapper { 
+            width: 360px; height: 780px; 
+            background: #1a1a1a; 
+            border-radius: 55px; 
+            padding: var(--bezel-width); 
+            box-shadow: 0 0 0 2px #333, 0 30px 60px rgba(0,0,0,0.8); 
         }
-
-        .mode-ipad .device-wrapper {
-            width: 700px;
-            height: 500px;
-            background: #1a1a1a;
-            border-radius: 35px;
-            box-shadow: 0 0 0 2px #333, 0 30px 60px rgba(0,0,0,0.8);
-            padding: var(--bezel-width);
+        
+        .mode-ipad .device-wrapper { 
+            width: 700px; height: 500px; 
+            background: #1a1a1a; 
+            border-radius: 35px; 
+            padding: var(--bezel-width); 
+            box-shadow: 0 0 0 2px #333, 0 30px 60px rgba(0,0,0,0.8); 
         }
-
-        .mode-imac .device-wrapper {
-            width: 850px;
-            height: 540px;
-            background: #e5e5e5;
-            border-radius: 12px;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-            padding: 15px;
-            padding-bottom: 80px;
+        
+        .mode-macbook .device-wrapper { 
+            width: 800px; height: 520px; 
+            background: #222; 
+            border-radius: 20px; 
+            padding: 10px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
+        }
+        
+        .mode-imac .device-wrapper { 
+            width: 850px; height: 540px; 
+            background: #e5e5e5; 
+            border-radius: 12px; 
+            padding: 15px; 
+            padding-bottom: 80px; 
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5); 
         }
 
         .screen-container {
@@ -76,50 +90,46 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
-        /* --- DYNAMIC ISLAND (REBUILT FOR SMOOTHNESS) --- */
-        .dynamic-island-container {
+        /* Mapping Screenshots to Modes */
+        .mode-iphone .screen-container { background-image: url('iphone.png'); }
+        .mode-ipad .screen-container { background-image: url('ipad.png'); }
+        .mode-macbook .screen-container { background-image: url('macbook.png'); }
+        .mode-imac .screen-container { background-image: url('imac.png'); }
+
+        /* --- DYNAMIC NOTCH / ISLAND --- */
+        .dynamic-container {
             position: absolute;
-            top: 11px; /* High position as requested */
+            top: 0;
             width: 100%;
             display: flex;
             justify-content: center;
-            z-index: 200;
-            pointer-events: none;
-            display: none;
+            z-index: 900; 
+            pointer-events: none; 
         }
 
-        .mode-iphone .dynamic-island-container { display: flex; }
-
-        .dynamic-island {
+        .dynamic-element {
             position: relative;
-            width: 120px;
-            height: 36px;
-            pointer-events: auto;
+            pointer-events: auto; 
             cursor: pointer;
-            transition: transform 0.6s var(--ios-snap);
+            transition: width 0.6s var(--ios-snap), height 0.6s var(--ios-snap), transform 0.6s var(--ios-snap);
             transform-origin: top center;
         }
 
-        .island-bg {
+        .dynamic-bg {
             position: absolute;
             inset: 0;
             background: var(--island-bg);
-            border-radius: 20px;
-            border: 0.5px solid rgba(255,255,255,0.08);
-            transition: all 0.6s var(--ios-snap);
-            transform-origin: top center;
+            border: 0.5px solid rgba(255,255,255,0.15);
+            transition: border-radius 0.6s var(--ios-snap);
             z-index: 1;
         }
 
-        /* Adjusted for rectangular shape and 15px radius when expanded */
-        .dynamic-island.expanded .island-bg {
-            transform: scale(2.8, 5.2);
-            border-radius: 10px; /* Resulting radius (~15px) after 2.8x scaling */
-        }
-
-        .island-content {
+        .dynamic-content {
             position: absolute;
             inset: 0;
             z-index: 2;
@@ -127,284 +137,279 @@
             align-items: center;
             justify-content: center;
             color: white;
-            transition: opacity 0.3s ease;
+            overflow: hidden;
         }
 
-        .compact-ui {
-            width: 100%;
-            padding: 0 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            opacity: 1;
-            transition: opacity 0.2s ease, transform 0.5s var(--ios-snap);
-        }
+        .mode-iphone .dynamic-container { top: 11px; }
+        .mode-iphone .dynamic-element { width: 120px; height: 36px; }
+        .mode-iphone .dynamic-bg { border-radius: 20px; }
+        .mode-macbook .dynamic-container { top: 0; }
+        .mode-macbook .dynamic-element { width: 180px; height: 28px; }
+        .mode-macbook .dynamic-bg { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
 
-        .expanded-ui {
+        .expanded { width: var(--expanded-width) !important; height: var(--expanded-height) !important; }
+        .mode-iphone .expanded .dynamic-bg { border-radius: var(--iphone-expanded-radius) !important; }
+        .mode-macbook .expanded .dynamic-bg { border-radius: var(--macbook-expanded-radius) !important; }
+
+        /* --- SVG AURA STYLES --- */
+        .aura-svg {
             position: absolute;
             top: 0;
-            left: 50%;
-            transform: translateX(-50%) scale(0.4);
-            width: 320px;
-            padding: 24px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease, transform 0.6s var(--ios-snap);
-            display: flex;
-            flex-direction: column;
-            transform-origin: top center;
-        }
-
-        .expanded .compact-ui {
-            opacity: 0;
-            transform: scale(0.8);
-            pointer-events: none;
-        }
-
-        .expanded .expanded-ui {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
-            pointer-events: auto;
-            transition-delay: 0.1s;
-        }
-
-        .island-pill-indicator { width: 10px; height: 10px; background: #ff3b30; border-radius: 50%; }
-        .island-green-dot { color: #4cd964; font-size: 14px; }
-
-        /* --- THE BEZEL GLOW --- */
-        .bezel-glow {
-            position: absolute;
-            inset: -4px;
-            z-index: 50;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 800;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.5s ease;
-            border-radius: inherit;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude;
-            -webkit-mask-composite: destination-out;
-            padding: 8px;
-        }
-
-        .bezel-glow::before {
-            content: '';
-            position: absolute;
-            inset: -50%;
-            background: var(--aura-gradient);
-            background-size: 300% 300%;
-            filter: blur(10px);
-            animation: rotateGlow 4s linear infinite;
-        }
-
-        .aura-active .bezel-glow { opacity: 1; }
-
-        @keyframes rotateGlow {
-            0% { transform: rotate(0deg); background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { transform: rotate(360deg); background-position: 0% 50%; }
-        }
-
-        /* --- SCREENSHOTS (Updated to your local files) --- */
-        .screenshot {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            z-index: 10;
-            transition: opacity 0.4s;
-        }
-        .mode-iphone .screenshot { background-image: url('iphone.png'); }
-        .mode-ipad .screenshot { background-image: url('ipad.png'); }
-        .mode-imac .screenshot { background-image: url('imac.png'); }
-
-        /* --- KEYBOARD --- */
-        .keyboard {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 280px;
-            z-index: 150;
-            padding: 10px 8px 30px 8px;
+            display: none;
+            padding: 2px;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            transform: translateY(100%);
-            transition: transform 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
-        .kb-open .keyboard { transform: translateY(0); }
-        .kb-aura-bg {
-            position: absolute;
-            inset: 0;
-            background: var(--aura-gradient);
-            background-size: 300% 300%;
-            animation: flowColors 8s ease infinite;
-            opacity: 0.15;
-            z-index: -2;
-        }
-        .kb-glass {
-            position: absolute;
-            inset: 0;
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(25px);
-            z-index: -1;
-        }
-        .kb-row { display: flex; gap: 4px; justify-content: center; flex: 1; }
-        .key { background: rgba(255, 255, 255, 0.1); border-radius: 5px; flex: 1; border: 0.5px solid rgba(255,255,255,0.05); }
-        .key.wide { flex: 1.5; }
-        .key.space { flex: 5; }
 
-        @keyframes flowColors {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .aura-active .aura-svg { opacity: 1; }
+        .mode-iphone .aura-iphone { display: block; }
+        .mode-ipad .aura-ipad { display: block; }
+        .mode-macbook .aura-macbook { display: block; }
+        .mode-imac .aura-imac { display: block; }
+
+        /* Gradient Animation */
+        .gradient-stop-1 { stop-color: #ff3b30; animation: colorCycle 4s infinite; }
+        .gradient-stop-2 { stop-color: #007aff; animation: colorCycle 4s infinite reverse; }
+        .gradient-stop-3 { stop-color: #ffcc00; animation: colorCycle 4s infinite 1s; }
+        
+        @keyframes colorCycle {
+            0% { stop-color: #ff3b30; }
+            25% { stop-color: #5ac8fa; }
+            50% { stop-color: #4cd964; }
+            75% { stop-color: #ff9500; }
+            100% { stop-color: #ff3b30; }
         }
+
+        /* --- CHAT UI --- */
+        .expanded-ui { width: 100%; height: 100%; padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; flex-direction: column; }
+        .expanded .expanded-ui { opacity: 1; pointer-events: auto; }
+        .chat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; color: white; }
+        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; color: white; scrollbar-width: none; }
+        .chat-messages::-webkit-scrollbar { display: none; }
+        
+        .message { max-width: 85%; padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
+        .ai-msg { background: rgba(255,255,255,0.15); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .user-msg { background: #007aff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        
+        .chat-input-container { display: flex; gap: 8px; background: rgba(255,255,255,0.08); padding: 6px 12px; border-radius: 18px; margin-top: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .chat-input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 12px; }
+        .send-btn { background: white; color: black; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold; transition: opacity 0.2s; }
+        .send-btn:hover { opacity: 0.8; }
+
+        /* Typing Indicator */
+        .typing-indicator { display: flex; gap: 3px; padding: 10px 12px; background: rgba(255,255,255,0.15); border-radius: 14px; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .typing-dot { width: 5px; height: 5px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
         /* --- IMAC CHIN --- */
-        .imac-chin {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background: #f3f3f3;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            border-top: 1px solid #ddd;
-        }
+        .imac-chin { position: absolute; bottom: 0; width: 100%; height: 80px; background: #f3f3f3; display: none; align-items: center; justify-content: center; }
         .mode-imac .imac-chin { display: flex; }
 
-        /* --- UI CONTROLS --- */
-        .controls {
-            position: fixed;
-            bottom: 30px;
-            display: flex;
-            gap: 12px;
-            background: rgba(255,255,255,0.08);
-            padding: 10px 20px;
-            border-radius: 30px;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.1);
-            z-index: 1000;
-        }
-        .btn {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 13px;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .btn:hover { background: rgba(255,255,255,0.2); }
+        /* --- CONTROLS --- */
+        .controls { position: fixed; bottom: 30px; display: flex; gap: 8px; background: rgba(255,255,255,0.08); padding: 8px; border-radius: 30px; backdrop-filter: blur(20px); z-index: 1000; }
+        .btn { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 12px; }
         .btn.active { background: #007aff; }
-        #kbToggleBtn { display: block; }
-        .mode-imac #kbToggleBtn { display: none; }
     </style>
 </head>
 <body class="mode-iphone">
 
     <div class="device-wrapper" id="device">
         <div class="screen-container">
-            <!-- Dynamic Island -->
-            <div class="dynamic-island-container">
-                <div class="dynamic-island" id="island" onclick="toggleIsland()">
-                    <div class="island-bg"></div>
-                    <div class="island-content">
-                        <div class="compact-ui">
-                            <div class="island-pill-indicator"></div>
-                            <div class="island-green-dot">●</div>
-                        </div>
-                        <div class="expanded-ui">
-                            <div style="display: flex; gap: 16px; align-items: center;">
-                                <div style="width: 54px; height: 54px; background: #222; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">♫</div>
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 600; font-size: 17px; letter-spacing: -0.5px;">Aura Beats</div>
-                                    <div style="opacity: 0.5; font-size: 14px;">Apple Intelligence</div>
-                                </div>
+            
+            <!-- Dynamic Element -->
+            <div class="dynamic-container">
+                <div class="dynamic-element" id="dynamicUI" onclick="toggleDynamic(event)">
+                    <div class="dynamic-bg"></div>
+                    <div class="dynamic-content">
+                        <div class="expanded-ui" onclick="event.stopPropagation()">
+                            <div class="chat-header">
+                                <div style="flex: 1; font-weight: 600; font-size: 13px;">Apple Intelligence</div>
+                                <div onclick="toggleDynamic(event)" style="cursor: pointer; opacity: 0.5; font-size: 18px; line-height: 1;">×</div>
                             </div>
-                            <div style="margin-top: 24px;">
-                                <div style="height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; position: relative;">
-                                    <div style="width: 35%; height: 100%; background: white; border-radius: 3px;"></div>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; opacity: 0.4; font-weight: 600;">
-                                    <span>1:12</span>
-                                    <span>-2:45</span>
-                                </div>
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message ai-msg">Hi! I can help you write, create, and get things done. What's on your mind?</div>
                             </div>
-                            <div style="display: flex; justify-content: space-around; align-items: center; margin-top: 10px; font-size: 26px;">
-                                <span style="cursor: pointer;">⏮</span>
-                                <span style="font-size: 32px; cursor: pointer;">II</span>
-                                <span style="cursor: pointer;">⏭</span>
+                            <div class="chat-input-container">
+                                <input type="text" class="chat-input" id="chatInput" placeholder="Ask Siri..." onkeypress="handleChatKey(event)">
+                                <button class="send-btn" onclick="sendMsg()">↑</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bezel-glow"></div>
-            <div class="screenshot"></div>
-            
-            <div class="keyboard" id="kb">
-                <div class="kb-aura-bg"></div>
-                <div class="kb-glass"></div>
-                <div class="kb-row"><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div></div>
-                <div class="kb-row" style="padding: 0 10px;"><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div></div>
-                <div class="kb-row"><div class="key wide"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key wide"></div></div>
-                <div class="kb-row"><div class="key"></div><div class="key"></div><div class="key space"></div><div class="key"></div><div class="key"></div></div>
-            </div>
+            <!-- SHARED SVG DEFS -->
+            <svg style="position: absolute; width:0; height:0;">
+                <defs>
+                    <linearGradient id="auraGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" class="gradient-stop-1" />
+                        <stop offset="50%" class="gradient-stop-2" />
+                        <stop offset="100%" class="gradient-stop-3" />
+                    </linearGradient>
+                    <filter id="glowBlur">
+                        <feGaussianBlur stdDeviation="3.5" result="blur"/>
+                        <feMerge>
+                            <feMergeNode in="blur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+            </svg>
+
+            <!-- IPHONE AURA -->
+            <svg class="aura-svg aura-iphone" viewBox="0 0 336 756" preserveAspectRatio="none">
+                <rect x="1" y="1" width="334" height="754" rx="43" fill="none" stroke="url(#auraGrad)" stroke-width="4" filter="url(#glowBlur)" vector-effect="non-scaling-stroke"/>
+            </svg>
+
+            <!-- IPAD AURA -->
+            <svg class="aura-svg aura-ipad" viewBox="0 0 676 476" preserveAspectRatio="none">
+                <rect x="1" y="1" width="674" height="474" rx="23" fill="none" stroke="url(#auraGrad)" stroke-width="4" filter="url(#glowBlur)" vector-effect="non-scaling-stroke"/>
+            </svg>
+
+            <!-- IMAC AURA -->
+            <svg class="aura-svg aura-imac" viewBox="0 0 820 445" preserveAspectRatio="none">
+                <rect x="1" y="1" width="818" height="443" rx="6" fill="none" stroke="url(#auraGrad)" stroke-width="4" filter="url(#glowBlur)" vector-effect="non-scaling-stroke"/>
+            </svg>
+
+            <!-- MACBOOK AURA (Notch Path) -->
+            <svg class="aura-svg aura-macbook" viewBox="0 0 780 500" preserveAspectRatio="none">
+                <path d="
+                    M 20,0 L 302,0 Q 310,0 310,8 L 310,18 Q 310,28 320,28 L 460,28 Q 470,28 470,18 L 470,8 Q 470,0 478,0 L 760,0 Q 780,0 780,20 L 780,480 Q 780,500 760,500 L 20,500 Q 0,500 0,480 L 0,20 Q 0,0 20,0 Z
+                " fill="none" stroke="url(#auraGrad)" stroke-width="4" filter="url(#glowBlur)" vector-effect="non-scaling-stroke" transform="translate(0,0)"/>
+            </svg>
         </div>
-        
-        <div class="imac-chin">
-            <div style="width: 40px; height: 40px; opacity: 0.2; background: black; border-radius: 50%;"></div>
-        </div>
+        <div class="imac-chin"></div>
     </div>
 
     <div class="controls">
         <button class="btn active" onclick="setMode('iphone', this)">iPhone</button>
         <button class="btn" onclick="setMode('ipad', this)">iPad</button>
+        <button class="btn" onclick="setMode('macbook', this)">MacBook</button>
         <button class="btn" onclick="setMode('imac', this)">iMac</button>
-        <div style="width: 1px; background: rgba(255,255,255,0.2); margin: 0 5px;"></div>
-        <button class="btn" id="siriToggle" onclick="toggleAura()">Siri Aura</button>
-        <button class="btn" id="kbToggleBtn" onclick="toggleKB()">Keyboard</button>
+        <div style="width: 1px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
+        <button class="btn" onclick="toggleAura()">Toggle Aura</button>
     </div>
 
     <script>
+        // Runtime API Key Injection
+        const apiKey = ""; 
+
         const device = document.getElementById('device');
-        const siriToggle = document.getElementById('siriToggle');
-        const island = document.getElementById('island');
+        const dynamicUI = document.getElementById('dynamicUI');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
 
         function setMode(mode, btn) {
             document.body.className = `mode-${mode}`;
             document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            device.classList.remove('aura-active', 'kb-open');
-            island.classList.remove('expanded');
-            siriToggle.classList.remove('active');
+            device.classList.remove('aura-active');
+            dynamicUI.classList.remove('expanded');
         }
 
-        function toggleAura() {
-            device.classList.toggle('aura-active');
-            siriToggle.classList.toggle('active');
+        function toggleAura() { 
+            device.classList.toggle('aura-active'); 
         }
-
-        function toggleKB() {
-            device.classList.toggle('kb-open');
-            if (device.classList.contains('kb-open')) {
-                island.classList.remove('expanded');
+        
+        function toggleDynamic(e) { 
+            e.stopPropagation(); 
+            dynamicUI.classList.toggle('expanded'); 
+            if(dynamicUI.classList.contains('expanded')) {
+                setTimeout(() => chatInput.focus(), 600);
             }
         }
 
-        function toggleIsland() {
-            island.classList.toggle('expanded');
+        function handleChatKey(e) { 
+            if (e.key === 'Enter') sendMsg(); 
+        }
+
+        async function sendMsg() {
+            const val = chatInput.value.trim();
+            if (!val) return;
+
+            // 1. Add User Message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user-msg';
+            userDiv.textContent = val;
+            chatMessages.appendChild(userDiv);
+            chatInput.value = '';
+            scrollToBottom();
+
+            // 2. Show Typing Indicator & Activate Aura
+            const loadingId = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'typing-indicator';
+            loadingDiv.id = loadingId;
+            loadingDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            chatMessages.appendChild(loadingDiv);
+            scrollToBottom();
+            
+            // Visual feedback: glow screen while thinking
+            device.classList.add('aura-active');
+
+            try {
+                // 3. Call Real AI
+                const text = await callGeminiAPI(val);
+                
+                // 4. Remove Loading & Add AI Response
+                document.getElementById(loadingId).remove();
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'message ai-msg';
+                aiDiv.textContent = text;
+                chatMessages.appendChild(aiDiv);
+            } catch (error) {
+                console.error(error);
+                document.getElementById(loadingId).remove();
+                const errDiv = document.createElement('div');
+                errDiv.className = 'message ai-msg';
+                errDiv.textContent = "I'm having trouble connecting right now.";
+                chatMessages.appendChild(errDiv);
+            } finally {
+                // 5. Cleanup
+                scrollToBottom();
+                device.classList.remove('aura-active');
+            }
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function callGeminiAPI(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }]
+            };
+
+            const maxRetries = 3;
+            let attempt = 0;
+            
+            while (attempt < maxRetries) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                    
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "I didn't get a response.";
+                } catch (e) {
+                    attempt++;
+                    if (attempt >= maxRetries) throw e;
+                    await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+                }
+            }
         }
     </script>
 </body>
