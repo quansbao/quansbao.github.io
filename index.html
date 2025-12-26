@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple Intelligence Bezel Glow</title>
+    <title>Apple Intelligencee</title>
     <style>
         :root {
-            --aura-gradient: linear-gradient(
-                to right,
-                #ff3b30, #ff9500, #ffcc00, #4cd964, #5ac8fa, #007aff, #5856d6, #ff2d55
+            --ai-gradient: linear-gradient(
+                90deg,
+                #ff3b30, #ff9500, #ffcc00, #34c759, #007aff, #5856d6, #af52de, #ff3b30
             );
-            --transition-speed: 0.6s;
-            --bezel-width: 12px;
-            --island-bg: #000000;
-            --ios-snap: cubic-bezier(0.23, 1, 0.32, 1);
             
-            /* Reduced Expansion Dimensions */
-            --expanded-width: 320px;
-            --expanded-height: 380px;
+            --ios-easing: cubic-bezier(0.23, 1, 0.32, 1);
+            --liquid-easing: cubic-bezier(0.4, 0, 0.1, 1);
+            --genie-easing: cubic-bezier(0.4, 0, 0, 1);
             
-            /* Radii */
-            --iphone-expanded-radius: 35px;
-            --macbook-expanded-radius: 14px;
+            --iphone-w: 360px; --iphone-h: 780px;
+            --ipad-w: 700px; --ipad-h: 500px;
+            --mac-w: 800px; --mac-h: 500px; 
+
+            --imac-x: 0px;
+            --imac-y: 0px;
+            --imac-w: 340px;
+            --imac-h: 180px;
         }
 
         body {
@@ -30,386 +31,490 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #050505;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            background: linear-gradient(-45deg, #000000, #1a0b2e, #0a1a2e, #000000);
+            background-size: 400% 400%;
+            animation: backgroundGradient 15s ease infinite;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             overflow: hidden;
-            transition: background 0.5s;
+            user-select: none;
         }
 
-        /* --- DEVICE CONTAINERS --- */
-        .device-wrapper {
+        @keyframes backgroundGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Global Minimal Status Bar --- */
+        .global-status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 38px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            z-index: 5000;
+            backdrop-filter: blur(30px);
+            background: rgba(0, 0, 0, 0.15);
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ai-trigger-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 20px;
+            transition: all 0.3s var(--ios-easing);
+            background: rgba(255, 255, 255, 0);
+        }
+        
+        .ai-trigger-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .ai-logo-glow {
+            width: 18px;
+            height: 18px;
             position: relative;
-            transition: all var(--transition-speed) var(--ios-snap);
+            background: var(--ai-gradient);
+            background-size: 200% 200%;
+            border-radius: 50%;
+            animation: aurora-move 4s linear infinite;
+            box-shadow: 0 0 10px rgba(88, 86, 214, 0.5);
+        }
+
+        .status-right { font-variant-numeric: tabular-nums; letter-spacing: 0.2px; opacity: 0.8; }
+
+        .viewport {
+            perspective: 1200px;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            padding-top: 38px;
         }
 
-        /* Device Specific Styles */
-        .mode-iphone .device-wrapper { 
-            width: 360px; height: 780px; 
-            background: #1a1a1a; 
-            border-radius: 55px; 
-            padding: var(--bezel-width); 
-            box-shadow: 0 0 0 2px #333, 0 30px 60px rgba(0,0,0,0.8); 
+        /* --- Device Wrapper --- */
+        .device-wrapper {
+            position: relative;
+            z-index: 10;
+            background: #121212;
+            box-shadow: 0 0 0 1px #333, 0 40px 80px rgba(0,0,0,0.8);
+            transition: 
+                width 0.8s var(--ios-easing), 
+                height 0.8s var(--ios-easing), 
+                border-radius 0.8s, 
+                transform 0.7s var(--genie-easing), 
+                opacity 0.7s var(--genie-easing),
+                filter 0.7s var(--genie-easing);
+            transform-origin: bottom center;
+            opacity: 1;
         }
-        
-        .mode-ipad .device-wrapper { 
-            width: 700px; height: 500px; 
-            background: #1a1a1a; 
-            border-radius: 35px; 
-            padding: var(--bezel-width); 
-            box-shadow: 0 0 0 2px #333, 0 30px 60px rgba(0,0,0,0.8); 
+
+        .device-wrapper.genie-hidden {
+            transform: translateY(400px) scaleX(0.1) scaleY(0.01);
+            opacity: 0;
+            filter: blur(15px);
+            pointer-events: none;
         }
-        
-        .mode-macbook .device-wrapper { 
-            width: 800px; height: 520px; 
-            background: #222; 
-            border-radius: 20px; 
-            padding: 10px; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
-        }
-        
-        .mode-imac .device-wrapper { 
-            width: 850px; height: 540px; 
-            background: #e5e5e5; 
-            border-radius: 12px; 
-            padding: 15px; 
-            padding-bottom: 80px; 
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5); 
-        }
+
+        .device-wrapper.exit-left { transform: translateX(-120vw) scale(0.9); opacity: 0; }
+        .device-wrapper.enter-right { transform: translateX(120vw) scale(0.9); opacity: 0; }
+
+        .mode-iphone .device-wrapper { width: var(--iphone-w); height: var(--iphone-h); border-radius: 56px; padding: 12px; }
+        .mode-ipad .device-wrapper { width: var(--ipad-w); height: var(--ipad-h); border-radius: 32px; padding: 12px; }
+        .mode-macbook .device-wrapper { width: var(--mac-w); height: var(--mac-h); border-radius: 20px; padding: 12px; background: #1a1a1a; }
+        .mode-imac .device-wrapper { width: var(--mac-w); height: calc(var(--mac-h) + 60px); background: #f5f5f7; border-radius: 24px; padding: 18px; padding-bottom: 0; }
 
         .screen-container {
             position: relative;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             background: #000;
             overflow: hidden;
             border-radius: inherit;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            display: flex; justify-content: center;
+            background-image: url('https://quansbao.github.io/iphone.png');
+            background-size: cover; background-position: center;
+        }
+        .mode-ipad .screen-container { background-image: url('https://quansbao.github.io/ipad.png'); }
+        .mode-macbook .screen-container { background-image: url('https://quansbao.github.io/imac.png'); }
+        .mode-imac .screen-container { background-image: url('https://quansbao.github.io/imac.png'); border-radius: 6px; height: var(--mac-h); }
+
+        .aura-border {
+            position: absolute; inset: -4px; border-radius: inherit;
+            background: var(--ai-gradient); background-size: 200% 200%;
+            opacity: 0; filter: blur(25px); z-index: -2; transition: opacity 1.2s ease;
+        }
+        .ai-active .aura-border { opacity: 0.5; animation: aurora-move 4s linear infinite; }
+
+        @keyframes aurora-move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .dynamic-island-wrapper {
+            position: absolute; z-index: 800; top: 0; width: 100%;
+            display: flex; justify-content: center; pointer-events: none;
+            transition: all 0.6s var(--ios-easing);
+        }
+        
+        .island-pill {
+            background: #000; 
+            position: relative; overflow: hidden;
+            pointer-events: auto; display: flex; flex-direction: column; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: 
+                width 0.6s var(--liquid-easing), 
+                min-height 0.6s var(--liquid-easing), 
+                border-radius 0.6s var(--liquid-easing), 
+                background-color 0.5s ease,
+                margin 0.6s var(--liquid-easing),
+                box-shadow 0.6s ease,
+                transform 0.6s var(--liquid-easing),
+                opacity 0.6s var(--liquid-easing);
         }
 
-        /* Mapping Screenshots to Modes */
-        .mode-iphone .screen-container { background-image: url('iphone.png'); }
-        .mode-ipad .screen-container { background-image: url('ipad.png'); }
-        .mode-macbook .screen-container { background-image: url('macbook.png'); }
-        .mode-imac .screen-container { background-image: url('imac.png'); }
+        .mode-iphone .island-pill { width: 120px; height: 35px; min-height: 35px; border-radius: 20px; margin-top: 11px; }
+        .mode-macbook .island-pill { width: 180px; height: 30px; min-height: 30px; margin-top: 0; border-radius: 0 0 12px 12px; }
+        .mode-ipad .dynamic-island-wrapper { top: auto; bottom: 20px; }
+        .mode-ipad .island-pill { width: 60px; height: 6px; min-height: 6px; background: rgba(255,255,255,0.4); margin: 0; border-radius: 10px; }
+        
+        .mode-imac .dynamic-island-wrapper { top: 35px; right: 25px; width: auto; justify-content: flex-end; left: auto; }
+        .mode-imac .island-pill { width: 40px; height: 6px; min-height: 6px; background: rgba(0,0,0,0); opacity: 0; transform: translateX(200px); }
 
-        /* --- DYNAMIC NOTCH / ISLAND --- */
-        .dynamic-container {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 900; 
-            pointer-events: none; 
+        .ai-active .island-pill {
+            width: 340px; 
+            min-height: 180px; 
+            background: rgba(22, 22, 22, 0.85); 
+            backdrop-filter: blur(50px) saturate(190%);
+            -webkit-backdrop-filter: blur(50px) saturate(190%); 
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); 
+            border-radius: 28px;
+            margin-top: 20px;
+            opacity: 1;
         }
 
-        .dynamic-element {
-            position: relative;
-            pointer-events: auto; 
-            cursor: pointer;
-            transition: width 0.6s var(--ios-snap), height 0.6s var(--ios-snap), transform 0.6s var(--ios-snap);
-            transform-origin: top center;
+        .mode-imac .ai-active .island-pill {
+            margin-top: 0;
+            width: var(--imac-w);
+            min-height: var(--imac-h);
+            transform: translate(var(--imac-x), var(--imac-y));
         }
 
-        .dynamic-bg {
-            position: absolute;
-            inset: 0;
-            background: var(--island-bg);
-            border: 0.5px solid rgba(255,255,255,0.15);
-            transition: border-radius 0.6s var(--ios-snap);
-            z-index: 1;
+        .drag-handle {
+            display: none; width: 40px; height: 12px; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            cursor: grab; z-index: 1001; padding: 10px;
         }
+        .drag-handle::after { content: ''; display: block; width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .mode-imac .ai-active .drag-handle { display: flex; align-items: center; justify-content: center; }
 
-        .dynamic-content {
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            overflow: hidden;
+        .resize-handle {
+            display: none; position: absolute; right: 0; bottom: 0; width: 24px; height: 24px;
+            cursor: nwse-resize; z-index: 1001;
         }
+        .mode-imac .ai-active .resize-handle { display: block; }
+        .resize-handle svg { width: 12px; height: 12px; position: absolute; bottom: 6px; right: 6px; fill: rgba(255,255,255,0.3); }
 
-        .mode-iphone .dynamic-container { top: 11px; }
-        .mode-iphone .dynamic-element { width: 120px; height: 36px; }
-        .mode-iphone .dynamic-bg { border-radius: 20px; }
-        .mode-macbook .dynamic-container { top: 0; }
-        .mode-macbook .dynamic-element { width: 180px; height: 28px; }
-        .mode-macbook .dynamic-bg { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
-
-        .expanded { width: var(--expanded-width) !important; height: var(--expanded-height) !important; }
-        .mode-iphone .expanded .dynamic-bg { border-radius: var(--iphone-expanded-radius) !important; }
-        .mode-macbook .expanded .dynamic-bg { border-radius: var(--macbook-expanded-radius) !important; }
-
-        /* --- SVG AURA STYLES --- */
-        .aura-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 800;
+        .ai-content {
+            opacity: 0; transform: translateY(10px); width: 100%; display: flex; flex-direction: column;
+            padding: 22px; box-sizing: border-box; transition: opacity 0.4s 0.2s, transform 0.4s 0.2s; color: white;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            display: none;
-            padding: 2px;
-            box-sizing: border-box;
+        }
+        .ai-active .ai-content { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .ai-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 16px; }
+        .ai-visualizer { flex-shrink: 0; height: 3px; background: var(--ai-gradient); background-size: 200% 200%; border-radius: 10px; opacity: 0.4; animation: aurora-move 3s linear infinite; margin-bottom: 16px; }
+        .ai-thinking .ai-visualizer { opacity: 1; height: 4px; animation: aurora-move 1s linear infinite; }
+        .ai-response-area { font-size: 15px; color: rgba(255,255,255,0.95); max-height: 0; overflow: hidden; transition: max-height 0.5s var(--ios-easing), margin 0.5s; line-height: 1.5; }
+        .has-response .ai-response-area { max-height: 350px; margin-bottom: 15px; overflow-y: auto; }
+        .ai-input { background: transparent; border: none; outline: none; color: white; font-size: 19px; width: 100%; }
+        .ai-input::placeholder { color: rgba(255,255,255,0.25); }
+
+        .ripple-layer { position: absolute; inset: 0; pointer-events: none; z-index: 500; }
+        .ripple-wave { position: absolute; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%); transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        .ripple-anim { animation: ripple-expand 1.2s var(--ios-easing) forwards; }
+        @keyframes ripple-expand { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.6; } 100% { transform: translate(-50%, -50%) scale(25); opacity: 0; } }
+
+        /* --- Liquid Glass Dock --- */
+        .dock-container { 
+            position: fixed; 
+            bottom: 30px; 
+            display: flex; 
+            gap: 12px; 
+            z-index: 2000; 
+            align-items: center;
+            height: 76px;
+            padding: 0 20px 8px 20px;
+            border-radius: 34px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(45px) saturate(210%);
+            -webkit-backdrop-filter: blur(45px) saturate(210%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: transform 0.3s ease;
         }
 
-        .aura-active .aura-svg { opacity: 1; }
-        .mode-iphone .aura-iphone { display: block; }
-        .mode-ipad .aura-ipad { display: block; }
-        .mode-macbook .aura-macbook { display: block; }
-        .mode-imac .aura-imac { display: block; }
-
-        /* Gradient Animation */
-        .gradient-stop-1 { stop-color: #ff3b30; animation: colorCycle 4s infinite; }
-        .gradient-stop-2 { stop-color: #007aff; animation: colorCycle 4s infinite reverse; }
-        .gradient-stop-3 { stop-color: #ffcc00; animation: colorCycle 4s infinite 1s; }
-        
-        @keyframes colorCycle {
-            0% { stop-color: #ff3b30; }
-            25% { stop-color: #5ac8fa; }
-            50% { stop-color: #4cd964; }
-            75% { stop-color: #ff9500; }
-            100% { stop-color: #ff3b30; }
+        .dock-btn { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: rgba(255,255,255,0.7); 
+            width: 46px; height: 46px; border-radius: 13px; 
+            cursor: pointer; 
+            transition: background 0.2s, border-color 0.2s, transform 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.25), margin 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.25);
+            display: flex; align-items: center; justify-content: center; transform-origin: bottom center; flex-shrink: 0; position: relative; margin-top: -8px;
         }
 
-        /* --- CHAT UI --- */
-        .expanded-ui { width: 100%; height: 100%; padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; flex-direction: column; }
-        .expanded .expanded-ui { opacity: 1; pointer-events: auto; }
-        .chat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; color: white; }
-        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; color: white; scrollbar-width: none; }
-        .chat-messages::-webkit-scrollbar { display: none; }
-        
-        .message { max-width: 85%; padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
-        .ai-msg { background: rgba(255,255,255,0.15); align-self: flex-start; border-bottom-left-radius: 4px; }
-        .user-msg { background: #007aff; align-self: flex-end; border-bottom-right-radius: 4px; }
-        
-        .chat-input-container { display: flex; gap: 8px; background: rgba(255,255,255,0.08); padding: 6px 12px; border-radius: 18px; margin-top: 8px; border: 1px solid rgba(255,255,255,0.1); }
-        .chat-input { background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 12px; }
-        .send-btn { background: white; color: black; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold; transition: opacity 0.2s; }
-        .send-btn:hover { opacity: 0.8; }
+        .dock-btn::before { content: ''; position: absolute; top: 1px; left: 1px; right: 1px; height: 40%; background: linear-gradient(rgba(255,255,255,0.15), transparent); border-radius: 12px 12px 4px 4px; pointer-events: none; }
+        .dock-btn::after { content: ''; position: absolute; bottom: -6px; width: 4px; height: 4px; background: #fff; border-radius: 50%; opacity: 0; transition: opacity 0.3s ease; }
+        .dock-btn.is-active-app::after { opacity: 1; }
+        .dock-btn svg { width: 22px; height: 22px; fill: currentColor; pointer-events: none; transition: transform 0.3s; }
+        .dock-btn.active { background: rgba(255, 255, 255, 0.2); color: #fff; border-color: rgba(255,255,255,0.5); box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .dock-btn:hover { transform: scale(1.8) translateY(-14px); background: rgba(255,255,255,0.3); color: #fff; margin-left: 18px; margin-right: 18px; z-index: 10; border-color: rgba(255,255,255,0.7); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .dock-btn.neighbor { transform: scale(1.35) translateY(-8px); margin-left: 8px; margin-right: 8px; }
 
-        /* Typing Indicator */
-        .typing-indicator { display: flex; gap: 3px; padding: 10px 12px; background: rgba(255,255,255,0.15); border-radius: 14px; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .typing-dot { width: 5px; height: 5px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        .power-btn-zone { position: absolute; background: #2a2a2a; border-radius: 4px; cursor: pointer; z-index: -1; }
+        .mode-iphone .power-btn-zone { right: -4px; top: 180px; width: 6px; height: 60px; }
+        .mode-ipad .power-btn-zone { top: -4px; right: 50px; width: 40px; height: 6px; }
 
-        /* --- IMAC CHIN --- */
-        .imac-chin { position: absolute; bottom: 0; width: 100%; height: 80px; background: #f3f3f3; display: none; align-items: center; justify-content: center; }
-        .mode-imac .imac-chin { display: flex; }
-
-        /* --- CONTROLS --- */
-        .controls { position: fixed; bottom: 30px; display: flex; gap: 8px; background: rgba(255,255,255,0.08); padding: 8px; border-radius: 30px; backdrop-filter: blur(20px); z-index: 1000; }
-        .btn { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 12px; }
-        .btn.active { background: #007aff; }
     </style>
 </head>
 <body class="mode-iphone">
 
-    <div class="device-wrapper" id="device">
-        <div class="screen-container">
-            
-            <!-- Dynamic Element -->
-            <div class="dynamic-container">
-                <div class="dynamic-element" id="dynamicUI" onclick="toggleDynamic(event)">
-                    <div class="dynamic-bg"></div>
-                    <div class="dynamic-content">
-                        <div class="expanded-ui" onclick="event.stopPropagation()">
-                            <div class="chat-header">
-                                <div style="flex: 1; font-weight: 600; font-size: 13px;">Apple Intelligence</div>
-                                <div onclick="toggleDynamic(event)" style="cursor: pointer; opacity: 0.5; font-size: 18px; line-height: 1;">×</div>
+    <!-- Global Minimal Status Bar -->
+    <div class="global-status-bar">
+        <div class="ai-trigger-btn" onclick="toggleAIFromStatus()">
+            <div class="ai-logo-glow"></div>
+            <span style="font-weight: 600; font-size: 12px; opacity: 0.9;">Intelligence</span>
+        </div>
+        <div class="status-right">
+            <span id="macTime">9:41 AM</span>
+        </div>
+    </div>
+
+    <div class="viewport">
+        <div class="device-wrapper" id="device">
+            <div class="aura-border"></div>
+            <div class="power-btn-zone" id="powerBtn"></div>
+
+            <div class="screen-container">
+                <div class="ripple-layer"><div class="ripple-wave" id="ripple"></div></div>
+                <div class="dynamic-island-wrapper">
+                    <div class="island-pill" id="island">
+                        <div class="drag-handle" id="dragHandle"></div>
+                        <div class="ai-content">
+                            <div class="ai-header">
+                                <span>Apple Intelligence</span>
+                                <span style="opacity:0.6">Gemini Flash</span>
                             </div>
-                            <div class="chat-messages" id="chatMessages">
-                                <div class="message ai-msg">Hi! I can help you write, create, and get things done. What's on your mind?</div>
-                            </div>
-                            <div class="chat-input-container">
-                                <input type="text" class="chat-input" id="chatInput" placeholder="Ask Siri..." onkeypress="handleChatKey(event)">
-                                <button class="send-btn" onclick="sendMsg()">↑</button>
-                            </div>
+                            <div class="ai-visualizer"></div>
+                            <div class="ai-response-area" id="aiResponse"></div>
+                            <input type="text" class="ai-input" id="aiInput" placeholder="How can I help?">
+                        </div>
+                        <div class="resize-handle" id="resizeHandle">
+                            <svg viewBox="0 0 24 24"><path d="M22 22h-2v-2h2v2zm0-4h-2v-2h2v2zm-4 4h-2v-2h2v2zm0-4h-2v-2h2v2zm-4 4h-2v-2h2v2zm8-8h-2v-2h2v2z"/></svg>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- SHARED SVG DEFS -->
-            <svg style="position: absolute; width:0; height:0;">
-                <defs>
-                    <linearGradient id="auraGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" class="gradient-stop-1" />
-                        <stop offset="50%" class="gradient-stop-2" />
-                        <stop offset="100%" class="gradient-stop-3" />
-                    </linearGradient>
-                    <filter id="glowBlur">
-                        <feGaussianBlur stdDeviation="3.5" result="blur"/>
-                        <feMerge>
-                            <feMergeNode in="blur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                </defs>
-            </svg>
-
-            <!-- IPHONE AURA -->
-            <svg class="aura-svg aura-iphone" viewBox="0 0 336 756" preserveAspectRatio="none">
-                <rect x="1" y="1" width="334" height="754" rx="43" fill="none" stroke="url(#auraGrad)" stroke-width="4" filter="url(#glowBlur)" vector-effect="non-scaling-stroke"/>
-            </svg>
-
-            <!-- IPAD AURA -->
-            <svg class="aura-svg aura-ipad" viewBox="0 0 676 476" preserveAspectRatio="none">
-                <rect x="1" y="1" width="674" height="474" rx="23" fill="none" stroke="url(#auraGrad)" stroke-width="4" filter="url(#glowBlur)" vector-effect="non-scaling-stroke"/>
-            </svg>
-
-            <!-- IMAC AURA -->
-            <svg class="aura-svg aura-imac" viewBox="0 0 820 445" preserveAspectRatio="none">
-                <rect x="1" y="1" width="818" height="443" rx="6" fill="none" stroke="url(#auraGrad)" stroke-width="4" filter="url(#glowBlur)" vector-effect="non-scaling-stroke"/>
-            </svg>
-
-            <!-- MACBOOK AURA (Notch Path) -->
-            <svg class="aura-svg aura-macbook" viewBox="0 0 780 500" preserveAspectRatio="none">
-                <path d="
-                    M 20,0 L 302,0 Q 310,0 310,8 L 310,18 Q 310,28 320,28 L 460,28 Q 470,28 470,18 L 470,8 Q 470,0 478,0 L 760,0 Q 780,0 780,20 L 780,480 Q 780,500 760,500 L 20,500 Q 0,500 0,480 L 0,20 Q 0,0 20,0 Z
-                " fill="none" stroke="url(#auraGrad)" stroke-width="4" filter="url(#glowBlur)" vector-effect="non-scaling-stroke" transform="translate(0,0)"/>
-            </svg>
         </div>
-        <div class="imac-chin"></div>
     </div>
 
-    <div class="controls">
-        <button class="btn active" onclick="setMode('iphone', this)">iPhone</button>
-        <button class="btn" onclick="setMode('ipad', this)">iPad</button>
-        <button class="btn" onclick="setMode('macbook', this)">MacBook</button>
-        <button class="btn" onclick="setMode('imac', this)">iMac</button>
-        <div style="width: 1px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
-        <button class="btn" onclick="toggleAura()">Toggle Aura</button>
+    <div class="dock-container" id="dock">
+        <button class="dock-btn active is-active-app" title="iPhone" onclick="handleDockClick('iphone', this)">
+            <svg viewBox="0 0 24 24"><path d="M17,1H7A2,2,0,0,0,5,3V21a2,2,0,0,0,2,2H17a2,2,0,0,0,2,-2V3A2,2,0,0,0,17,1Zm0,18H7V5H17ZM12,21a1,1,0,1,1,1,-1A1,1,0,0,1,12,21Z"/></svg>
+        </button>
+        <button class="dock-btn" title="iPad" onclick="handleDockClick('ipad', this)">
+            <svg viewBox="0 0 24 24"><path d="M19,2H5A2,2,0,0,0,3,4V20a2,2,0,0,0,2,2H19a2,2,0,0,0,2,-2V4A2,2,0,0,0,19,2Zm0,16H5V6H19ZM12,21a1,1,0,1,1,1,-1A1,1,0,0,1,12,21Z"/></svg>
+        </button>
+        <button class="dock-btn" title="MacBook" onclick="handleDockClick('macbook', this)">
+            <svg viewBox="0 0 24 24"><path d="M22,18H21V4a2,2,0,0,0,-2,-2H5A2,2,0,0,0,3,4V18H2a1,1,0,0,0,0,2H22a1,1,0,0,0,0,-2ZM5,4H19V18H5ZM12,19a0.5,0.5,0,1,1,0.5,-0.5A0.5,0.5,0,0,1,12,19Z"/></svg>
+        </button>
+        <button class="dock-btn" title="iMac" onclick="handleDockClick('imac', this)">
+            <svg viewBox="0 0 24 24"><path d="M21,2H3A2,2,0,0,0,1,4V16a2,2,0,0,0,2,2H11v2H8a1,1,0,0,0,0,2h8a1,1,0,0,0,0,-2H13V18h8a2,2,0,0,0,2,-2V4A2,2,0,0,0,21,2Zm0,14H3V4H21Z"/></svg>
+        </button>
     </div>
 
     <script>
-        // Runtime API Key Injection
+        const device = document.getElementById('device');
+        const powerBtn = document.getElementById('powerBtn');
+        const ripple = document.getElementById('ripple');
+        const island = document.getElementById('island');
+        const input = document.getElementById('aiInput');
+        const responseArea = document.getElementById('aiResponse');
+        const dragHandle = document.getElementById('dragHandle');
+        const resizeHandle = document.getElementById('resizeHandle');
+        const dockBtns = Array.from(document.querySelectorAll('.dock-btn'));
+        const macTime = document.getElementById('macTime');
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            macTime.innerText = timeString;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        let holdTimer = null, isHeld = false, aiActive = false;
+        let currentMode = 'iphone', isDeviceVisible = true;
         const apiKey = ""; 
 
-        const device = document.getElementById('device');
-        const dynamicUI = document.getElementById('dynamicUI');
-        const chatInput = document.getElementById('chatInput');
-        const chatMessages = document.getElementById('chatMessages');
+        dockBtns.forEach((btn, idx) => {
+            btn.addEventListener('mouseenter', () => {
+                if (dockBtns[idx - 1]) dockBtns[idx - 1].classList.add('neighbor');
+                if (dockBtns[idx + 1]) dockBtns[idx + 1].classList.add('neighbor');
+            });
+            btn.addEventListener('mouseleave', () => {
+                dockBtns.forEach(b => b.classList.remove('neighbor'));
+            });
+        });
 
-        function setMode(mode, btn) {
-            document.body.className = `mode-${mode}`;
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            device.classList.remove('aura-active');
-            dynamicUI.classList.remove('expanded');
-        }
+        let isDragging = false, isResizing = false;
+        let startX, startY, startW, startH;
+        let posX = 0, posY = 0, winW = 340, winH = 180;
 
-        function toggleAura() { 
-            device.classList.toggle('aura-active'); 
-        }
-        
-        function toggleDynamic(e) { 
-            e.stopPropagation(); 
-            dynamicUI.classList.toggle('expanded'); 
-            if(dynamicUI.classList.contains('expanded')) {
-                setTimeout(() => chatInput.focus(), 600);
+        powerBtn.addEventListener('mousedown', startHold);
+        document.addEventListener('mouseup', endHold);
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'Alt' || e.key === 'Option') && !e.repeat) {
+                const rect = device.getBoundingClientRect();
+                startHold({ clientX: rect.left + rect.width/2, clientY: rect.bottom - 40 });
             }
-        }
+            if (e.key === 'Enter' && aiActive && input.value.trim()) handleGeminiQuery(input.value.trim());
+        });
+        document.addEventListener('keyup', (e) => { if (e.key === 'Alt' || e.key === 'Option') endHold(); });
 
-        function handleChatKey(e) { 
-            if (e.key === 'Enter') sendMsg(); 
-        }
+        dragHandle.addEventListener('mousedown', (e) => {
+            if (currentMode !== 'imac') return;
+            isDragging = true; startX = e.clientX - posX; startY = e.clientY - posY;
+            island.style.transition = 'none'; e.stopPropagation();
+        });
 
-        async function sendMsg() {
-            const val = chatInput.value.trim();
-            if (!val) return;
+        resizeHandle.addEventListener('mousedown', (e) => {
+            if (currentMode !== 'imac') return;
+            isResizing = true; startX = e.clientX; startY = e.clientY;
+            startW = winW; startH = winH;
+            island.style.transition = 'none'; e.stopPropagation();
+        });
 
-            // 1. Add User Message
-            const userDiv = document.createElement('div');
-            userDiv.className = 'message user-msg';
-            userDiv.textContent = val;
-            chatMessages.appendChild(userDiv);
-            chatInput.value = '';
-            scrollToBottom();
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                posX = e.clientX - startX; posY = e.clientY - startY;
+                document.documentElement.style.setProperty('--imac-x', `${posX}px`);
+                document.documentElement.style.setProperty('--imac-y', `${posY}px`);
+            } else if (isResizing) {
+                winW = Math.max(280, startW + (e.clientX - startX));
+                winH = Math.max(150, startH + (e.clientY - startY));
+                document.documentElement.style.setProperty('--imac-w', `${winW}px`);
+                document.documentElement.style.setProperty('--imac-h', `${winH}px`);
+            }
+        });
 
-            // 2. Show Typing Indicator & Activate Aura
-            const loadingId = 'loading-' + Date.now();
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'typing-indicator';
-            loadingDiv.id = loadingId;
-            loadingDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-            chatMessages.appendChild(loadingDiv);
-            scrollToBottom();
-            
-            // Visual feedback: glow screen while thinking
-            device.classList.add('aura-active');
+        document.addEventListener('mouseup', () => { isDragging = isResizing = false; if (aiActive) island.style.transition = ''; });
 
+        async function handleGeminiQuery(query) {
+            input.value = ""; input.placeholder = "Thinking...";
+            device.classList.add('ai-thinking');
+            responseArea.innerText = "";
+            device.classList.remove('has-response');
             try {
-                // 3. Call Real AI
-                const text = await callGeminiAPI(val);
-                
-                // 4. Remove Loading & Add AI Response
-                document.getElementById(loadingId).remove();
-                const aiDiv = document.createElement('div');
-                aiDiv.className = 'message ai-msg';
-                aiDiv.textContent = text;
-                chatMessages.appendChild(aiDiv);
-            } catch (error) {
-                console.error(error);
-                document.getElementById(loadingId).remove();
-                const errDiv = document.createElement('div');
-                errDiv.className = 'message ai-msg';
-                errDiv.textContent = "I'm having trouble connecting right now.";
-                chatMessages.appendChild(errDiv);
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: query }] }], systemInstruction: { parts: [{ text: "Short, crisp, Siri-like responses." }] } })
+                });
+                const data = await response.json();
+                responseArea.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
+                device.classList.add('has-response');
+            } catch (err) {
+                responseArea.innerText = "Connection lost.";
+                device.classList.add('has-response');
             } finally {
-                // 5. Cleanup
-                scrollToBottom();
-                device.classList.remove('aura-active');
+                device.classList.remove('ai-thinking');
+                input.placeholder = "How can I help?";
             }
         }
 
-        function scrollToBottom() {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        function startHold(e) {
+            if (aiActive || !isDeviceVisible) return;
+            isHeld = true;
+            let x = e.touches ? e.touches[0].clientX : e.clientX;
+            let y = e.touches ? e.touches[0].clientY : e.clientY;
+            holdTimer = setTimeout(() => { if (isHeld) invokeAI(x, y); }, 400);
         }
 
-        async function callGeminiAPI(prompt) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }]
-            };
+        function endHold() { isHeld = false; if (holdTimer) clearTimeout(holdTimer); }
 
-            const maxRetries = 3;
-            let attempt = 0;
-            
-            while (attempt < maxRetries) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-                    
-                    const data = await response.json();
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "I didn't get a response.";
-                } catch (e) {
-                    attempt++;
-                    if (attempt >= maxRetries) throw e;
-                    await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
-                }
+        function toggleAIFromStatus() {
+            if (aiActive) closeAI();
+            else {
+                const rect = device.getBoundingClientRect();
+                invokeAI(rect.left + rect.width / 2, rect.top + 50);
             }
+        }
+
+        function invokeAI(originX, originY) {
+            const screenRect = document.querySelector('.screen-container').getBoundingClientRect();
+            ripple.style.left = `${originX - screenRect.left}px`;
+            ripple.style.top = `${originY - screenRect.top}px`;
+            ripple.classList.remove('ripple-anim');
+            void ripple.offsetWidth;
+            ripple.classList.add('ripple-anim');
+            setTimeout(() => {
+                aiActive = true;
+                device.classList.add('ai-active');
+                setTimeout(() => input.focus(), 500);
+            }, 150);
+        }
+
+        document.addEventListener('mousedown', (e) => {
+            if (aiActive && !e.target.closest('.island-pill') && !e.target.closest('.power-btn-zone') && !e.target.closest('.ai-trigger-btn')) closeAI();
+        });
+
+        function closeAI() {
+            aiActive = false;
+            device.classList.remove('ai-active');
+            device.classList.remove('has-response');
+            input.blur();
+            posX = 0; posY = 0; winW = 340; winH = 180;
+            document.documentElement.style.setProperty('--imac-x', `0px`);
+            document.documentElement.style.setProperty('--imac-y', `0px`);
+            document.documentElement.style.setProperty('--imac-w', `340px`);
+            document.documentElement.style.setProperty('--imac-h', `180px`);
+        }
+
+        function handleDockClick(mode, btn) {
+            if (mode === currentMode) { toggleGenie(); return; }
+            switchDevice(mode, btn);
+        }
+
+        function toggleGenie() {
+            isDeviceVisible = !isDeviceVisible;
+            if (isDeviceVisible) device.classList.remove('genie-hidden');
+            else { closeAI(); device.classList.add('genie-hidden'); }
+        }
+
+        function switchDevice(mode, btn) {
+            isDeviceVisible = true;
+            device.classList.remove('genie-hidden');
+            device.classList.add('exit-left');
+            setTimeout(() => {
+                currentMode = mode;
+                document.body.className = `mode-${mode}`;
+                document.querySelectorAll('.dock-btn').forEach(b => { b.classList.remove('active', 'is-active-app'); });
+                btn.classList.add('active', 'is-active-app');
+                closeAI();
+                device.classList.remove('exit-left');
+                device.classList.add('enter-right');
+                void device.offsetWidth;
+                device.classList.remove('enter-right');
+            }, 600);
         }
     </script>
 </body>
